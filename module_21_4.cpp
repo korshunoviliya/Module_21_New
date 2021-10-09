@@ -28,7 +28,7 @@ void inputEnemy(Character enemy[])
 {
     for(int i = 0; i < 5; ++i)
     {
-        enemy[i].name = "Enemy #" + i;
+        enemy[i].name = "Enemy # " + std::to_string(i);
         enemy[i].life = std::rand() % 100 + 50;
         enemy[i].armor = std::rand() % 50;
         enemy[i].damage = std::rand() % 15 + 15;
@@ -61,10 +61,29 @@ void inputPlayer(Character &player)
     std::cin >> player.damage;
 }
 
+void printScreen(char field[][40], Character &enemy, Character &player)
+{
+    for(int i = 0; i < 40; ++i)
+    {
+        for(int j = 0; j < 40; ++j)
+        {
+
+        }
+        std::cout << std::endl;
+    }
+}
 int main() {
     Character enemy[5];
     Character player;
-
     char field[40][40];
+
+    //inputPlayer(player);
+    inputEnemy(enemy);
+    for(int i = 0; i < 5; ++i)
+    {
+        std::cout << enemy[i].name << " " << enemy[i].life << " " << enemy[i].armor
+                << " " <<enemy[i].damage << " " << enemy[i].whoIsIt << " x:"
+                << enemy[i].coordinate.x << " y:" << enemy[i].coordinate.y << std::endl;
+    }
 
 }
