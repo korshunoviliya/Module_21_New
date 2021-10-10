@@ -1,12 +1,11 @@
 #include <iostream>
 #include <string>
 #include <cmath>
-#include <iomanip>
 
 struct Vec
 {
-   double x;
-   double y;
+   double x{0};
+   double y{0};
 
 };
 
@@ -27,79 +26,59 @@ void inputCoordinateTwo(Vec &secondVec)
     std::cin >> secondVec.x >> secondVec.y;
 }
 
-double inputScal()
+Vec addVec(Vec &firstVec, Vec &secondVec)
 {
-    double scal;
-    std::cout << "Enter the scale: ";
-    std::cin >> scal;
-    return scal;
-}
-
-void addVec()
-{
-    Vec firstVec;
-    Vec secondVec;
     Vec total;
-    inputCoordinateOne(firstVec);
-    inputCoordinateTwo(secondVec);
     total.x = firstVec.x + secondVec.x;
     total.y = firstVec.y + secondVec.y;
-    printResult(total);
+    return total;
 }
 
-void subtractVec()
+ Vec subtractVec(Vec &firstVec, Vec &secondVec)
 {
-    Vec firstVec;
-    Vec secondVec;
     Vec total;
-    inputCoordinateOne(firstVec);
-    inputCoordinateTwo(secondVec);
     total.x =  secondVec.x - firstVec.x;
     total.y = secondVec.y - firstVec.y;
-    printResult(total);
-
+    return total;
 }
 
-void scaleVec()
+Vec scaleVec(Vec &firstVec, double scalar)
 {
-    Vec firstVec;
     Vec total;
-    inputCoordinateOne(firstVec);
-    double scal = inputScal();
-    total.x = firstVec.x * scal;
-    total.y = firstVec.y * scal;
-    printResult(total);
+    total.x = firstVec.x * scalar;
+    total.y = firstVec.y * scalar;
+    return total;
 }
 
-double lenghtVec(Vec &firstVec)
+double lengthVec(Vec &firstVec)
 {
-    double lenVector = sqrt(pow(firstVec.x,2) + pow(firstVec.y,2));
-    std::setprecision(5);
-    std::cout << "The vector length: " << lenVector << std::endl;
-    return lenVector;
+    return sqrt(pow(firstVec.x,2) + pow(firstVec.y,2));
 }
 
-void normVec()
+Vec normVec(Vec &firstVec)
 {
-    Vec firstVec;
     Vec total;
-    inputCoordinateOne(firstVec);
-    double lenVector = lenghtVec(firstVec);
+    double lenVector = lengthVec(firstVec);
     if (lenVector != 0)
     {
         total.x = firstVec.x / lenVector;
         total.y = firstVec.y / lenVector;
-        std::cout << total.x << "\t" << firstVec.x << "\t" << lenVector << std::endl;
-        printResult(total);
     }
     else
     {
-        std::cout << " Length vector is NULL\n";
+        total.x = 0;
+        total.y = 0;
     }
+    return total;
 }
+
 int main() {
-    std::cout << 2 / 2.82843;
-   while(true)
+
+    Vec firstVec;
+    Vec secondVec;
+    Vec total;
+
+    while(true)
     {
     std::cout << "Adding two vectors - add command." << std::endl;
     std::cout << "Subtracting two vectors is the subtract command." << std::endl;
@@ -108,19 +87,48 @@ int main() {
     std::cout << "Vector normalization - command normalize." << std::endl;
 
     std::string command;
-        Vec firstVec;
+
         std::cout << "Enter the command: ";
         std::cin >> command;
-        if (command == "add") addVec();
-        else if (command == "subtract") subtractVec();
-        else if (command == "scale") scaleVec();
+        if (command == "add")
+        {
+            inputCoordinateOne(firstVec);
+            inputCoordinateTwo(secondVec);
+            total = addVec(firstVec, secondVec);
+            printResult(total);
+        }
+        else if (command == "subtract")
+        {
+            inputCoordinateOne(firstVec);
+            inputCoordinateTwo(secondVec);
+            total = subtractVec(firstVec, secondVec);
+            printResult(total);
+        }
+        else if (command == "scale")
+        {
+            inputCoordinateOne(firstVec);
+            double scalar;
+            std::cout << "Enter the scale: ";
+            std::cin >> scalar;
+            scaleVec(firstVec, scalar);
+            printResult(total);
+        }
         else if (command == "length")
         {
             inputCoordinateOne(firstVec);
-            lenghtVec(firstVec);
+            std::cout << "The length of the vector is: " << lengthVec(firstVec) << std::endl;
         }
-        else if (command == "normalize") normVec();
-        else if (command == "end") return 0;
+        else if (command == "normalize")
+        {
+            inputCoordinateOne(firstVec);
+            normVec(firstVec);
+            printResult(total);
+        }
+        else if (command == "end")
+        {
+            std::cout << "See your later!!! Good by!\n";
+            return 0;
+        }
         else std::cout << "Command is not correct. Try again!!!" << std::endl;
     }
 }
