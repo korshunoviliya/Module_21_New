@@ -241,6 +241,10 @@ int main() {
     {
         int saveX = character[PLAYER].coordinateX; // сохраняем координаты до хода
         int saveY = character[PLAYER].coordinateY;
+
+        std::cout << "Enter left, right, up or down for move the player\n"
+                     "Enter save or load for save or load the current state of the game\n"
+                     "Enter end for quit game\n";
         std::cout << "Enter your move: ";
         std::cin >> turn;
         if(turn == "left") --character[PLAYER].coordinateX;
