@@ -1,6 +1,9 @@
 #include <iostream>
 #include <cstdlib>
 #include <string>
+#include <fstream>
+
+int maxField_g = 40; // размер игрового поля(на маленьком легче тестировать)
 
 enum WhoIsIt
         {
@@ -19,8 +22,62 @@ struct Character
     int coordinateY{0};
 };
 
-void saveGame();
-void loadGame();
+void saveGame(Character character[])
+{
+    std::ofstream file("..\\myGame.bin", std::ios::binary);
+    if (file.is_open())
+    {
+        for(int i = 0; i < 6; ++i)
+        {
+            /*file << character[i].name << "\t" << character[i].life << "\t"
+                    << character[i].armor << "\t" << character[i].damage << "\t"
+                    << character[i].coordinateX << "\t" << character[i].coordinateY
+                    << "\t" << character[i].is_life << std::endl;*/
+
+            int len = character[i].name.length();
+            file.write((char*) &len, sizeof(len));
+            file.write((char*) character[i].name.c_str(), sizeof(len));
+            file.write((char*) &character[i].life, sizeof(character[i].life));
+            file.write((char*) &character[i].armor, sizeof(character[i].armor));
+            file.write((char*) &character[i].damage, sizeof(character[i].damage));
+            file.write((char*) &character[i].is_life, sizeof(character[i].is_life));
+            file.write((char*) &character[i].coordinateX, sizeof(character[i].coordinateX));
+            file.write((char*) &character[i].coordinateY, sizeof(character[i].coordinateY));
+        }
+        std::cout << "File is save!\n";
+        file.close();
+    }
+    else std::cout << "File is not open!!! Save failed!\n";
+}
+
+void loadGame(Character character[])
+{
+    std::ifstream file("..\\myGame.bin", std::ios::binary);
+
+    if (file.is_open())
+    {
+        for(int i = 0; i < 6; ++i)
+        {
+            /*file >> character[i].name  >> character[i].life >>
+                  character[i].armor  >> character[i].damage >>
+                  character[i].coordinateX >> character[i].coordinateY
+                 >> character[i].is_life;*/
+            int len;
+            file.read((char*) &len, sizeof(len));
+            character[i].name.resize(len);
+            file.read((char*) character[i].name.c_str(), sizeof(len));
+            file.read((char*) &character[i].life, sizeof(character[i].life));
+            file.read((char*) &character[i].armor, sizeof(character[i].armor));
+            file.read((char*) &character[i].damage, sizeof(character[i].damage));
+            file.read((char*) &character[i].is_life, sizeof(character[i].is_life));
+            file.read((char*) &character[i].coordinateX, sizeof(character[i].coordinateX));
+            file.read((char*) &character[i].coordinateY, sizeof(character[i].coordinateY));
+        }
+        std::cout << "File is load!\n";
+        file.close();
+    }
+    else std::cout << "File is not open!!! load failed!\n";
+}
 
 void inputEnemy(Character character[])
 {
@@ -30,8 +87,8 @@ void inputEnemy(Character character[])
         character[i].life = std::rand() % 100 + 50;
         character[i].armor = std::rand() % 50;
         character[i].damage = std::rand() % 15 + 15;
-        character[i].coordinateX = std::rand() % 40;
-        character[i].coordinateY = std::rand() % 40;
+        character[i].coordinateX = std::rand() % maxField_g;
+        character[i].coordinateY = std::rand() % maxField_g;
 
         if (i > 0)
         {
@@ -42,8 +99,8 @@ void inputEnemy(Character character[])
                         (character[i].coordinateX == character[PLAYER].coordinateX &&
                          character[i].coordinateY == character[PLAYER].coordinateY))
                 {
-                    character[i].coordinateX = std::rand() % 40;
-                    character[i].coordinateY = std::rand() % 40;
+                    character[i].coordinateX = std::rand() % maxField_g;
+                    character[i].coordinateY = std::rand() % maxField_g;
                     j = 0;
                 }
             }
@@ -61,18 +118,22 @@ Character inputPlayer(Character &player)
     std::cin >> player.armor;
     std::cout << "Enter your damage: ";
     std::cin >> player.damage;
-    player.coordinateX = 20;
-    player.coordinateY = 20;
+    player.coordinateX = 5;
+    player.coordinateY = 5;
     return player;
 }
 
-void printScreen(char field[][40], Character character[])
+void printScreen(Character character[])
 {
+    char field[40][40]{0}; // игровое поле
     for(int i = 0; i < 6; ++i)
     {
-        std::cout << character[i].name << " " << character[i].life << " " << character[i].armor
-                  << " " <<character[i].damage << " " << " x:"
-                  << character[i].coordinateX << " y:" << character[i].coordinateY << std::endl;
+        if (character[i].is_life)
+        {
+            std::cout << character[i].name << " " << character[i].life << " " << character[i].armor
+                      << " " << character[i].damage << " " << " x:"
+                      << character[i].coordinateX << " y:" << character[i].coordinateY << std::endl;
+        }
     }
     if(character[PLAYER].is_life)
     {
@@ -91,9 +152,9 @@ void printScreen(char field[][40], Character character[])
         }
     }
 
-    for(int j = 0; j < 40; ++j)
+    for(int j = 0; j < maxField_g; ++j)
     {
-        for(int i = 0; i < 40; ++i)
+        for(int i = 0; i < maxField_g; ++i)
         {
         if(field[i][j] != 'E' && field[i][j] != 'P') field[i][j] = '.';
         std::cout << field[i][j];
@@ -105,9 +166,9 @@ void printScreen(char field[][40], Character character[])
 
 Character fieldBoundaryCheck(Character &person)
 {
-    if (person.coordinateX > 40) --person.coordinateX;
+    if (person.coordinateX > maxField_g) --person.coordinateX;
     else if (person.coordinateX < 0) ++person.coordinateX;
-    if (person.coordinateY > 40) --person.coordinateY;
+    if (person.coordinateY > maxField_g) --person.coordinateY;
     else if (person.coordinateY < 0) ++person.coordinateY;
 
     return person;
@@ -115,6 +176,7 @@ Character fieldBoundaryCheck(Character &person)
 
 void attack (Character &whoShoot, Character &whoFall)
 {
+    std::cout << "ATTENTION!!! ATTACK!!!" << std::endl;
     whoFall.armor -= whoShoot.damage;
     if (whoFall.armor <= 0)
     {
@@ -125,6 +187,7 @@ void attack (Character &whoShoot, Character &whoFall)
     {
         whoFall.life = 0;
         whoFall.is_life = false;
+        std::cout << whoFall.name << " is dead!!!" << std::endl;
     }
 }
 
@@ -167,18 +230,11 @@ void enemyMove(Character character[])
 
 int main() {
     Character character[6];
-    char field[40][40]{0}; // игровое поле
 
-    //player = inputPlayer(player); // вводим данные игрока
-    character[PLAYER].name = "Ilya";
-    character[PLAYER].life = 500;
-    character[PLAYER].armor = 100;
-    character[PLAYER].damage = 50;
-    character[PLAYER].coordinateX = 20;
-    character[PLAYER].coordinateY = 20;
 
+    inputPlayer(character[PLAYER]); // вводим данные игрока
     inputEnemy(character); // вводим данные врагов
-    printScreen(field, character); // выводим игровое поле на экран
+    printScreen(character); // выводим игровое поле на экран
 
     std::string turn; // значение хода игрока
     while(true)
@@ -189,10 +245,10 @@ int main() {
         std::cin >> turn;
         if(turn == "left") --character[PLAYER].coordinateX;
         else if (turn == "right") ++character[PLAYER].coordinateX;
-        else if (turn == "down") --character[PLAYER].coordinateY;
-        else if (turn == "up") ++character[PLAYER].coordinateY;
-        //else if (turn == "save") saveGame();
-        //else if (turn == "load") loadGame();
+        else if (turn == "up") --character[PLAYER].coordinateY;
+        else if (turn == "down") ++character[PLAYER].coordinateY;
+        else if (turn == "save") saveGame(character);
+        else if (turn == "load") loadGame(character);
         else if (turn == "end") return 0;
         else std::cout << "Input is not correct. Try again!!!\n";
 
@@ -206,11 +262,12 @@ int main() {
             {
                 character[PLAYER].coordinateX = saveX;
                 character[PLAYER].coordinateY = saveY;
+
                 attack(character[PLAYER], character[i]);
             }
         }
 
         enemyMove(character); // перемещение врагов
-        printScreen(field, character);
+        printScreen(character);// вывод игрового поля в консоль
     }
 }
