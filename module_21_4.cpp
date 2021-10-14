@@ -22,7 +22,7 @@ struct Character
     int coordinateY{0};
 };
 
-void saveGame(Character character[])
+void saveGame(Character character[]) // сохранение текущих позиций в файл
 {
     std::ofstream file("..\\myGame.bin", std::ios::binary);
     if (file.is_open())
@@ -50,7 +50,7 @@ void saveGame(Character character[])
     else std::cout << "File is not open!!! Save failed!\n";
 }
 
-void loadGame(Character character[])
+void loadGame(Character character[]) // загрузка сохраненных позиций
 {
     std::ifstream file("..\\myGame.bin", std::ios::binary);
 
@@ -79,7 +79,7 @@ void loadGame(Character character[])
     else std::cout << "File is not open!!! load failed!\n";
 }
 
-void inputEnemy(Character character[])
+void inputEnemy(Character character[]) // заполнение данных о врагах и их местоположении
 {
     for(int i = 0; i < 5; ++i)
     {
@@ -108,7 +108,7 @@ void inputEnemy(Character character[])
     }
 }
 
-Character inputPlayer(Character &player)
+Character inputPlayer(Character &player) // ввод данных об игроке
 {
     std::cout << "Enter your name: ";
     std::cin >> player.name;
@@ -123,7 +123,7 @@ Character inputPlayer(Character &player)
     return player;
 }
 
-void printScreen(Character character[])
+void printScreen(Character character[]) // вывод игрового поля на экран
 {
     char field[40][40]{0}; // игровое поле
     for(int i = 0; i < 6; ++i)
@@ -135,7 +135,7 @@ void printScreen(Character character[])
                       << character[i].coordinateX << " y:" << character[i].coordinateY << std::endl;
         }
     }
-    if(character[PLAYER].is_life)
+    if(character[PLAYER].is_life) // вывод игрока на экран или завершение игры в случае его гибели
     {
         field[character[PLAYER].coordinateX][(character[PLAYER].coordinateY)] = 'P';
     }
@@ -164,7 +164,7 @@ void printScreen(Character character[])
     }
 }
 
-Character fieldBoundaryCheck(Character &person)
+Character fieldBoundaryCheck(Character &person) // проверка хода на границы игрового поля
 {
     if (person.coordinateX > maxField_g) --person.coordinateX;
     else if (person.coordinateX < 0) ++person.coordinateX;
@@ -174,7 +174,7 @@ Character fieldBoundaryCheck(Character &person)
     return person;
 }
 
-void attack (Character &whoShoot, Character &whoFall)
+void attack (Character &whoShoot, Character &whoFall) // встреча персонажей
 {
     std::cout << "ATTENTION!!! ATTACK!!!" << std::endl;
     whoFall.armor -= whoShoot.damage;
@@ -191,7 +191,7 @@ void attack (Character &whoShoot, Character &whoFall)
     }
 }
 
-void enemyMove(Character character[])
+void enemyMove(Character character[]) // перемещение врагов в ходе игры случайным образом
 {
     for (int i = 0; i < 5; ++i)
     {
@@ -239,6 +239,18 @@ int main() {
     std::string turn; // значение хода игрока
     while(true)
     {
+        // Проверка количества живых врагов и условие завершения игры победой
+        int countEnemy{0};
+        for (int i = 0; i < 5; ++i)
+        {
+            if (!(character[i].is_life)) countEnemy++;
+        }
+        if (countEnemy == 5)
+        {
+            std::cout << "All enemies is dead! You win!!!\n Game over!\n";
+            return  0;
+        }
+
         int saveX = character[PLAYER].coordinateX; // сохраняем координаты до хода
         int saveY = character[PLAYER].coordinateY;
 
@@ -258,6 +270,7 @@ int main() {
 
         fieldBoundaryCheck(character[PLAYER]); //проверка не выходит ли игрок за границы поля
 
+        // если игрок встречается с врагом, он его атакует и не двигается с места
         for(int i = 0; i < 5; ++i)
         {
             if ((character[i].coordinateX == character[PLAYER].coordinateX)
